@@ -1,0 +1,12 @@
+[
+  {
+    "symbol": "MES",
+    "description": "Micro E-mini S&P 500",
+    "tick_size": 0.25
+  },
+  {
+    "symbol": "NQ",
+    "description": "E-mini Nasdaq-100",
+    "tick_size": 0.25
+  }
+]

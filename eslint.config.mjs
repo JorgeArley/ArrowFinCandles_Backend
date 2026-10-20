@@ -15,7 +15,6 @@ export default tseslint.config(
     languageOptions: {
       globals: {
         ...globals.node,
-        ...globals.jest,
       },
       sourceType: 'commonjs',
       parserOptions: {
@@ -30,6 +29,13 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
       "prettier/prettier": ["error", { endOfLine: "auto" }],
+    },
+  },
+  {
+    files: ['tests/**/*.ts'],
+    rules: {
+      // it() y describe() de node:test devuelven promesas que gestiona el runner.
+      '@typescript-eslint/no-floating-promises': 'off',
     },
   },
 );
