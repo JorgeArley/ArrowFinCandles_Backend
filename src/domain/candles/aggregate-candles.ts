@@ -6,10 +6,10 @@ function toIsoZ(epochMs: number): string {
 }
 
 /**
- * Agrega velas de 1 minuto en el timeframe pedido. Los buckets van anclados al
- * epoch UTC: floor(ts / duracion) * duracion. Las velas de entrada deben venir
- * deduplicadas y ordenadas, porque open y close toman la primera y la ultima
- * vela de cada grupo.
+ * Aggregates 1 minute candles into the requested timeframe. Buckets are anchored
+ * to the UTC epoch: floor(ts / duration) * duration. The input candles must come
+ * deduplicated and sorted, because open and close take the first and the last
+ * candle of each group.
  */
 export function aggregateCandles(
   candles: readonly Candle[],

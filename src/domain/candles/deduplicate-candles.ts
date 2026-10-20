@@ -1,10 +1,10 @@
 import type { Candle } from './candle';
 
 /**
- * Dos filas con el mismo (symbol, ts) pero distinto OHLCV no son duplicados:
- * son observaciones contradictorias del mismo minuto. El README del dataset
- * garantiza una sola vela por simbolo y minuto, asi que un conflicto es una
- * anomalia, no informacion legitima que se pueda descartar en silencio.
+ * Two rows sharing the same (symbol, ts) but with a different OHLCV are not
+ * duplicates: they are contradictory observations of the same minute. The
+ * dataset README guarantees a single candle per symbol and minute, so a
+ * conflict is an anomaly, not legitimate data that can be discarded silently.
  */
 export interface CandleConflict {
   readonly symbol: string;
@@ -39,9 +39,10 @@ function isWellFormed(candle: Candle): boolean {
 }
 
 /**
- * Orden total e independiente del orden del archivo: primero las velas bien
- * formadas, luego la de mayor volumen y por ultimo un desempate lexicografico.
- * Asi el resultado no depende de como venga ordenado el JSON.
+ * Total order that does not depend on the order of the file: well formed
+ * candles first, then the one with the highest volume, and finally a
+ * lexicographic tiebreak. The result is the same no matter how the JSON is
+ * ordered.
  */
 function compareCandidates(a: Candle, b: Candle): number {
   if (isWellFormed(a) !== isWellFormed(b)) return isWellFormed(a) ? -1 : 1;
@@ -53,9 +54,9 @@ function compareCandidates(a: Candle, b: Candle): number {
 }
 
 /**
- * Identidad de duplicado segun el README del dataset: un duplicado es "la misma
- * vela reenviada", es decir, una fila identica en todos sus campos. La copia
- * repetida no aporta volumen, asi que se conserva una sola vez.
+ * Duplicate identity according to the dataset README: a duplicate is "the same
+ * candle sent again", that is, a row identical in every field. The repeated
+ * copy carries no volume, so only one of them is kept.
  */
 export function deduplicateCandles(
   rows: readonly Candle[],
@@ -81,15 +82,15 @@ export function deduplicateCandles(
     }
 
     if (variants.size === 1) {
-      // Mismo minuto y mismo contenido: la misma vela reenviada.
-      // Se conserva una sola copia para que el volumen se cuente una vez.
+      // Same minute and same content: the same candle sent again.
+      // A single copy is kept so the volume is counted once.
       candles.push(group[0]);
       duplicatesRemoved += group.length - 1;
       continue;
     }
 
-    // Conflicto: no son duplicados. Se conserva la observacion mas completa,
-    // se reporta el conflicto y los volumenes nunca se suman.
+    // Conflict: not duplicates. The most complete observation is kept, the
+    // conflict is reported and the volumes are never summed.
     const candidates = [...variants.values()].sort(compareCandidates);
     const kept = candidates[0];
     const keptCopies = group.filter(

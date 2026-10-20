@@ -10,7 +10,7 @@ export interface Instrument {
 
 export const DATASET_DIR = join(__dirname, '..', '..', 'dataset');
 
-/** Filas tal cual vienen en el dataset: sin ordenar y con duplicados. */
+/** Rows exactly as they come in the dataset: unsorted and with duplicates. */
 export function loadRawCandles(): Candle[] {
   const content = readFileSync(join(DATASET_DIR, 'candles_1m.json'), 'utf-8');
   return JSON.parse(content) as Candle[];
@@ -32,7 +32,7 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-/** Barajado determinista: la misma semilla produce siempre el mismo orden. */
+/** Deterministic shuffle: the same seed always produces the same order. */
 export function shuffle<T>(items: readonly T[], seed = 42): T[] {
   const random = mulberry32(seed);
   const result = [...items];

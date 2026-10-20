@@ -9,8 +9,8 @@ function containsDataset(dir: string): boolean {
 }
 
 /**
- * Sube por el arbol de directorios buscando la carpeta del dataset. Asi el
- * resultado no depende de la profundidad a la que se compilen los fuentes.
+ * Walks up the directory tree looking for the dataset folder. That way the
+ * result does not depend on how deep the sources are compiled.
  */
 function findDatasetDirUpwards(start: string): string | undefined {
   let current = start;
@@ -24,9 +24,9 @@ function findDatasetDirUpwards(start: string): string | undefined {
 }
 
 /**
- * Localiza la carpeta del dataset. Si se define DATASET_DIR se respeta en
- * exclusiva: un override invalido es un error, no un motivo para caer al
- * dataset por defecto.
+ * Locates the dataset folder. When DATASET_DIR is defined it is honoured
+ * exclusively: an invalid override is an error, not a reason to fall back to
+ * the default dataset.
  */
 export function resolveDatasetDir(
   env: NodeJS.ProcessEnv = process.env,
@@ -41,8 +41,7 @@ export function resolveDatasetDir(
     if (existsSync(join(dir, CANDLES_FILE))) return dir;
 
     throw new Error(
-      `No se encontro la carpeta "dataset": DATASET_DIR="${override}" ` +
-        `no contiene "${CANDLES_FILE}"`,
+      `Dataset folder "dataset" not found: DATASET_DIR="${override}" does not contain "${CANDLES_FILE}"`,
     );
   }
 
@@ -53,7 +52,7 @@ export function resolveDatasetDir(
   if (existsSync(join(fromCwd, CANDLES_FILE))) return fromCwd;
 
   throw new Error(
-    'No se encontro la carpeta "dataset". Define DATASET_DIR con su ruta absoluta.',
+    'Dataset folder "dataset" not found. Set DATASET_DIR to its absolute path.',
   );
 }
 
@@ -63,13 +62,13 @@ export function readJsonFile<T>(filePath: string): T {
     content = readFileSync(filePath, 'utf-8');
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
-    throw new Error(`No se pudo leer "${filePath}": ${reason}`);
+    throw new Error(`Could not read "${filePath}": ${reason}`);
   }
 
   try {
     return JSON.parse(content) as T;
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
-    throw new Error(`"${filePath}" no contiene JSON valido: ${reason}`);
+    throw new Error(`"${filePath}" does not contain valid JSON: ${reason}`);
   }
 }

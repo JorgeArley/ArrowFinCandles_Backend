@@ -5,9 +5,9 @@ import { JsonCandleRepository } from './infrastructure/persistence/json-candle-r
 import { CandlesController } from './presentation/http/candles.controller';
 
 /**
- * Composition root: aqui se conectan las piezas. La capa de aplicacion pide un
- * CandleRepository (puerto del dominio) y recibe la implementacion de
- * infraestructura, de modo que las dependencias apuntan hacia dentro.
+ * Composition root: this is where the pieces are wired together. The
+ * application layer asks for a CandleRepository (a domain port) and receives
+ * the infrastructure implementation, so dependencies point inwards.
  */
 @Module({
   controllers: [CandlesController],

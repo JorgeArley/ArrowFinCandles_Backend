@@ -19,7 +19,7 @@ function candle(overrides: Partial<Candle> = {}): Candle {
   };
 }
 
-/** Velas de 1 minuto dentro del mismo grupo de 5 minutos, con valores conocidos. */
+/** 1 minute candles within the same 5 minute group, with known values. */
 const MINUTE_GROUP: readonly Candle[] = [
   candle({
     ts: '2026-08-25T14:00:00Z',
@@ -47,33 +47,33 @@ const MINUTE_GROUP: readonly Candle[] = [
   }),
 ];
 
-describe('calculos de agregacion', () => {
-  describe('reglas open, high, low, close y volume', () => {
+describe('aggregation calculations', () => {
+  describe('open, high, low, close and volume rules', () => {
     const [aggregated] = aggregateCandles(MINUTE_GROUP, '5m');
 
-    it('open es el open de la primera vela del grupo', () => {
+    it('open is the open of the first candle of the group', () => {
       assert.equal(aggregated.o, 10);
     });
 
-    it('close es el close de la ultima vela del grupo', () => {
+    it('close is the close of the last candle of the group', () => {
       assert.equal(aggregated.c, 15);
     });
 
-    it('high es el maximo de los high del grupo', () => {
+    it('high is the highest high of the group', () => {
       assert.equal(aggregated.h, 16);
     });
 
-    it('low es el minimo de los low del grupo', () => {
+    it('low is the lowest low of the group', () => {
       assert.equal(aggregated.l, 8);
     });
 
-    it('volume es la suma de los volumenes del grupo', () => {
+    it('volume is the sum of the volumes of the group', () => {
       assert.equal(aggregated.v, 600);
     });
   });
 
-  describe('limites temporales de cada grupo', () => {
-    it('agrupa por minutos anchored al epoch UTC', () => {
+  describe('time boundaries of each group', () => {
+    it('groups minutes anchored to the UTC epoch', () => {
       const aggregated = aggregateCandles(
         [
           candle({ ts: '2026-08-25T14:00:00Z' }),
@@ -86,7 +86,7 @@ describe('calculos de agregacion', () => {
       assert.equal(aggregated[0].t, '2026-08-25T14:00:00Z');
     });
 
-    it('una vela de las 14:05 abre el grupo siguiente', () => {
+    it('a candle at 14:05 opens the next group', () => {
       const aggregated = aggregateCandles(
         [
           candle({ ts: '2026-08-25T14:04:00Z' }),
@@ -101,7 +101,7 @@ describe('calculos de agregacion', () => {
       );
     });
 
-    it('el grupo horario contiene todos los minutos de esa hora', () => {
+    it('the hourly group holds every minute of that hour', () => {
       const aggregated = aggregateCandles(
         [
           candle({ ts: '2026-08-25T13:58:00Z' }),
@@ -117,7 +117,7 @@ describe('calculos de agregacion', () => {
       );
     });
 
-    it('en 1m cada vela conserva su propio grupo', () => {
+    it('in 1m every candle keeps its own group', () => {
       const aggregated = aggregateCandles(MINUTE_GROUP, '1m');
 
       assert.deepEqual(
@@ -135,15 +135,15 @@ describe('calculos de agregacion', () => {
     });
   });
 
-  describe('orden y grupos incompletos', () => {
-    it('devuelve las velas de la mas antigua a la mas reciente', () => {
+  describe('ordering and incomplete groups', () => {
+    it('returns the candles from oldest to newest', () => {
       const aggregated = aggregateCandles(MINUTE_GROUP, '1m');
       const timestamps = aggregated.map((c) => c.t);
 
       assert.deepEqual(timestamps, [...timestamps].sort());
     });
 
-    it('un grupo con minutos ausentes se agrega con los minutos que existen', () => {
+    it('a group with missing minutes is aggregated with the minutes that exist', () => {
       const aggregated = aggregateCandles(
         [
           candle({ ts: '2026-08-25T15:45:00Z', volume: 10 }),
@@ -157,27 +157,27 @@ describe('calculos de agregacion', () => {
       assert.equal(aggregated[0].v, 60);
     });
 
-    it('sin velas devuelve un array vacio', () => {
+    it('returns an empty array when there are no candles', () => {
       assert.deepEqual(aggregateCandles([], '5m'), []);
     });
 
-    it('nunca produce NaN ni Infinity', () => {
+    it('never produces NaN nor Infinity', () => {
       const aggregated = aggregateCandles(
         deduplicateCandles(loadRawCandles()).candles,
         '15m',
       );
 
       for (const c of aggregated) {
-        assert.ok(Number.isFinite(c.o), `o no finito en ${c.t}`);
-        assert.ok(Number.isFinite(c.h), `h no finito en ${c.t}`);
-        assert.ok(Number.isFinite(c.l), `l no finito en ${c.t}`);
-        assert.ok(Number.isFinite(c.c), `c no finito en ${c.t}`);
-        assert.ok(Number.isFinite(c.v), `v no finito en ${c.t}`);
+        assert.ok(Number.isFinite(c.o), `o is not finite at ${c.t}`);
+        assert.ok(Number.isFinite(c.h), `h is not finite at ${c.t}`);
+        assert.ok(Number.isFinite(c.l), `l is not finite at ${c.t}`);
+        assert.ok(Number.isFinite(c.c), `c is not finite at ${c.t}`);
+        assert.ok(Number.isFinite(c.v), `v is not finite at ${c.t}`);
       }
     });
   });
 
-  describe('sobre el dataset real', () => {
+  describe('over the real dataset', () => {
     const rows = loadRawCandles();
     const candles = deduplicateCandles(rows).candles;
 
@@ -187,7 +187,7 @@ describe('calculos de agregacion', () => {
         tf,
       );
 
-    it('produce el numero de velas esperado en cada timeframe', () => {
+    it('produces the expected number of candles on every timeframe', () => {
       const expected: Record<string, number> = {
         'MES/1m': 388,
         'MES/5m': 78,
@@ -204,12 +204,12 @@ describe('calculos de agregacion', () => {
         assert.equal(
           aggregateFor(symbol, tf).length,
           count,
-          `${key} deberia tener ${count} velas`,
+          `${key} should have ${count} candles`,
         );
       }
     });
 
-    it('agrega MES en 5m con los valores esperados', () => {
+    it('aggregates MES in 5m with the expected values', () => {
       const aggregated = aggregateFor('MES', '5m');
 
       assert.deepEqual(aggregated[0], {
@@ -222,7 +222,7 @@ describe('calculos de agregacion', () => {
       });
     });
 
-    it('agrega el grupo de las 14:00 con los valores esperados', () => {
+    it('aggregates the 14:00 group with the expected values', () => {
       const aggregated = aggregateFor('MES', '5m');
       const at1400 = aggregated.find((c) => c.t === '2026-08-25T14:00:00Z');
 
@@ -236,7 +236,7 @@ describe('calculos de agregacion', () => {
       });
     });
 
-    it('el grupo horario inicial cubre solo los minutos de la sesion', () => {
+    it('the first hourly group only covers the minutes of the session', () => {
       const aggregated = aggregateFor('MES', '1h');
 
       assert.equal(aggregated[0].t, '2026-08-25T13:00:00Z');
@@ -244,7 +244,7 @@ describe('calculos de agregacion', () => {
       assert.equal(aggregated[0].v, 68982);
     });
 
-    it('el ultimo grupo de la sesion cierra con el cierre del ultimo minuto', () => {
+    it('the last group of the session closes with the close of the last minute', () => {
       const aggregated = aggregateFor('MES', '5m');
       const last = aggregated[aggregated.length - 1];
 

@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
 /**
- * Contrato de transporte: la query solo tiene que traer ambos parametros como
- * texto. Si el simbolo o el timeframe no estan soportados, lo decide el
- * dominio (GetCandlesUseCase), no la capa HTTP.
+ * Transport contract: the query only has to bring both parameters as text.
+ * Whether the symbol or the timeframe are supported is decided by the domain
+ * (GetCandlesUseCase), not by the HTTP layer.
  */
 export class CandlesQueryDto {
   @IsString()

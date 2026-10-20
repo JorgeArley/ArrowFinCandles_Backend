@@ -10,8 +10,9 @@ import type { Request, Response } from 'express';
 import { ValidationError } from '../../../domain/candles/errors';
 
 /**
- * Frontera entre el dominio y HTTP: traduce los errores de negocio a codigos
- * HTTP y deja cualquier otra excepcion en un 500 sin filtrar detalles internos.
+ * Boundary between the domain and HTTP: it translates business errors into
+ * HTTP status codes and leaves any other exception as a 500 without leaking
+ * internal details.
  */
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -37,7 +38,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     this.logger.error(
-      `Error no controlado en ${request.method} ${request.url}`,
+      `Unhandled error on ${request.method} ${request.url}`,
       exception instanceof Error ? exception.stack : String(exception),
     );
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

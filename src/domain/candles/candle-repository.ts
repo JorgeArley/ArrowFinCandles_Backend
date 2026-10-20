@@ -3,8 +3,8 @@ import type { Candle } from './candle';
 export const CANDLE_REPOSITORY = Symbol('CandleRepository');
 
 /**
- * Puerto de salida del dominio. La infraestructura implementa este contrato;
- * el dominio no sabe de ficheros, de Nest ni de donde vienen los datos.
+ * Outbound port of the domain. The infrastructure implements this contract; the
+ * domain knows nothing about files, Nest or where the data comes from.
  */
 export interface CandleRepository {
   getBySymbol(symbol: string): readonly Candle[];

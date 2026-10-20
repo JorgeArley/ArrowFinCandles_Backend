@@ -24,28 +24,26 @@ function isFiniteNumber(value: unknown): value is number {
 }
 
 /**
- * Valida la estructura de cada fila. Una fila invalida impide arrancar el
- * servicio en vez de devolver NaN o valores truncados mas adelante.
+ * Validates the shape of every row. An invalid row prevents the service from
+ * starting instead of returning NaN or truncated values further down.
  */
 function validateCandleRows(rows: unknown, filePath: string): Candle[] {
   if (!Array.isArray(rows)) {
-    throw new Error(`"${filePath}" deberia contener un array de velas`);
+    throw new Error(`"${filePath}" should contain an array of candles`);
   }
 
   return rows.map((row, index) => {
     if (typeof row !== 'object' || row === null) {
-      throw new Error(`"${filePath}": la fila ${index} no es un objeto`);
+      throw new Error(`"${filePath}": row ${index} is not an object`);
     }
 
     const { symbol, ts, open, high, low, close, volume } = row as Candle;
 
     if (typeof symbol !== 'string' || symbol.length === 0) {
-      throw new Error(
-        `"${filePath}": la fila ${index} no tiene un symbol valido`,
-      );
+      throw new Error(`"${filePath}": row ${index} has no valid symbol`);
     }
     if (typeof ts !== 'string' || Number.isNaN(Date.parse(ts))) {
-      throw new Error(`"${filePath}": la fila ${index} no tiene un ts valido`);
+      throw new Error(`"${filePath}": row ${index} has no valid ts`);
     }
     for (const [field, value] of Object.entries({
       open,
@@ -56,7 +54,7 @@ function validateCandleRows(rows: unknown, filePath: string): Candle[] {
     })) {
       if (!isFiniteNumber(value)) {
         throw new Error(
-          `"${filePath}": la fila ${index} (${symbol} ${ts}) tiene "${field}" no numerico`,
+          `"${filePath}": row ${index} (${symbol} ${ts}) has a non-numeric "${field}"`,
         );
       }
     }
@@ -66,8 +64,8 @@ function validateCandleRows(rows: unknown, filePath: string): Candle[] {
 }
 
 /**
- * Adaptador de salida: carga el dataset del disco una sola vez al arrancar y
- * lo mantiene en memoria. Implementa el puerto CandleRepository del dominio.
+ * Outbound adapter: loads the dataset from disk once at startup and keeps it
+ * in memory. Implements the CandleRepository port of the domain.
  */
 @Injectable()
 export class JsonCandleRepository implements CandleRepository, OnModuleInit {
@@ -92,8 +90,8 @@ export class JsonCandleRepository implements CandleRepository, OnModuleInit {
     this.buildIndex(candles);
 
     this.logger.log(
-      `Dataset cargado: ${rows.length} filas, ${candles.length} velas unicas, ` +
-        `${duplicatesRemoved} duplicados descartados, ${conflicts.length} conflictos`,
+      `Dataset loaded: ${rows.length} rows, ${candles.length} unique candles, ` +
+        `${duplicatesRemoved} duplicates discarded, ${conflicts.length} conflicts`,
     );
   }
 
@@ -112,8 +110,8 @@ export class JsonCandleRepository implements CandleRepository, OnModuleInit {
   private reportConflicts(conflicts: readonly CandleConflict[]): void {
     for (const conflict of conflicts) {
       this.logger.warn(
-        `Conflicto en ${conflict.symbol} ${conflict.ts}: se conserva ` +
-          `${JSON.stringify(conflict.kept)} y se descartan ` +
+        `Conflict on ${conflict.symbol} ${conflict.ts}: keeping ` +
+          `${JSON.stringify(conflict.kept)} and discarding ` +
           `${JSON.stringify(conflict.discarded)}`,
       );
     }
@@ -134,10 +132,10 @@ export class JsonCandleRepository implements CandleRepository, OnModuleInit {
     for (const symbol of unknown) {
       const inInstruments = declared.has(symbol)
         ? ''
-        : ' ni en instruments.json';
+        : ' nor in instruments.json';
       this.logger.warn(
-        `El dataset contiene el simbolo "${symbol}" que no esta en la lista de ` +
-          `simbolos soportados${inInstruments}. No sera consultable.`,
+        `The dataset contains the symbol "${symbol}" which is not in the list of ` +
+          `supported symbols${inInstruments}. It will not be queryable.`,
       );
     }
   }

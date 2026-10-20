@@ -1,7 +1,7 @@
 import { SUPPORTED_SYMBOLS } from './symbol';
 import { TIMEFRAMES } from './timeframe';
 
-/** Error de negocio: la peticion es invalida y se traduce a un 400. */
+/** Business error: the request is invalid and gets translated to a 400. */
 export class ValidationError extends Error {
   readonly code: string;
 
